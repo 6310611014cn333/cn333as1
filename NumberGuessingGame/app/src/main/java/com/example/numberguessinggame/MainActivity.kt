@@ -41,20 +41,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-private fun TheHint(guess: Int, ans: Int, rounds: Int): Pair<String, Int> {
+private fun theHint(guess: Int, ans: Int, rounds: Int): Pair<String, Int> {
     var hint = ""
     var round = rounds
     if (guess > ans && guess <= 1000) {
-        hint = "It's lower"
+        hint = "Hint: It's lower!"
         round++
     } else if (guess < ans && guess >= 1) {
-        hint = "It's higher"
+        hint = "Hint: It's higher!"
         round++
     } else if (guess == ans) {
-        hint = "Correct! You won with $round round(s)"
+        hint = "Correct! You won in $round round(s)!"
         round = 0
     } else {
-        hint = "Guess the number"
+        hint = "Guess the number!"
         round = 1
     }
     return Pair(hint, round)
@@ -72,7 +72,6 @@ fun GuessingNumField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(stringResource(label)) },
-        modifier = Modifier.fillMaxWidth(),
         singleLine = true,
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
@@ -87,8 +86,8 @@ fun GameScreen() {
     var numInput by remember { mutableStateOf("") }
     var guess = numInput.toIntOrNull() ?: 0
 
-    var hint by remember { mutableStateOf(TheHint(guess, ans, 0).first) }
-    var round by remember { mutableStateOf(TheHint(guess, ans, 0).second) }
+    var hint by remember { mutableStateOf(theHint(guess, ans, 0).first) }
+    var round by remember { mutableStateOf(theHint(guess, ans, 0).second) }
 
     val focusManager = LocalFocusManager.current
     Column(
@@ -96,14 +95,14 @@ fun GameScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(R.string.game_description) + " " + ans, //ใส่ ans ไว้ดูว่า program ถูกต้องไหม ของจริงไม่มี
+            text = stringResource(R.string.game_description),
             fontSize = 24.sp,
             fontWeight = FontWeight.W500,
             textAlign = TextAlign.Center,
-            modifier = Modifier.padding(top = 10.dp)
+            modifier = Modifier.padding(top = 2.dp)
         )
 
-        Spacer(Modifier.height(100.dp))
+        Spacer(Modifier.height(150.dp))
         GuessingNumField(label = R.string.your_guess,
         keyboardOptions = KeyboardOptions.Default.copy(
             keyboardType = KeyboardType.Number,
@@ -112,16 +111,16 @@ fun GameScreen() {
         keyboardActions = KeyboardActions(
             onDone = {
                 focusManager.clearFocus()
-                hint = TheHint(guess, ans, round).first
-                round = TheHint(guess, ans, round).second
+                hint = theHint(guess, ans, round).first
+                round = theHint(guess, ans, round).second
             }
         ),
         value = numInput,
         onValueChange = { numInput = it })
 
-        Spacer(Modifier.height(50.dp))
+        Spacer(Modifier.height(150.dp))
         Text(
-            text = stringResource(R.string.hint, hint),
+            text = hint,
             style = TextStyle(fontSize = 22.sp, color = Color.Gray),
             modifier = Modifier
                 .padding(vertical = 8.dp),
@@ -131,8 +130,8 @@ fun GameScreen() {
             ans = (1..1000).random()
             numInput = ""
             guess = numInput.toIntOrNull() ?: 0
-            hint = TheHint(guess, ans, 0).first
-            round = TheHint(guess, ans, 0).second
+            hint = theHint(guess, ans, 0).first
+            round = theHint(guess, ans, 0).second
         }) {
             Text(stringResource(R.string.play_again))
         }
