@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-private fun TheHint(guess: Int, ans: Int, rounds: Int): <String, Int, String> {
+private fun TheHint(guess: Int, ans: Int, rounds: Int): Pair<String, Int> {
     var hint = ""
     var round = rounds
     if (guess > ans && guess <= 1000) {
@@ -57,7 +57,7 @@ private fun TheHint(guess: Int, ans: Int, rounds: Int): <String, Int, String> {
         hint = "Guess the number"
         round = 1
     }
-    return hint, round
+    return Pair(hint, round)
 }
 
 @Composable
@@ -71,10 +71,11 @@ fun GuessingNumField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        label = { Text(stringResource(R.string.your_guess)) },
+        label = { Text(stringResource(label)) },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = keyboardOptions,
+        keyboardActions = keyboardActions,
         colors = TextFieldDefaults.textFieldColors(
             backgroundColor = Color.Transparent)
     )
@@ -83,10 +84,12 @@ fun GuessingNumField(
 @Composable
 fun GameScreen() {
     var ans by remember { mutableStateOf((1..1000).random()) }
-    var numInput by remember { mutableStateOf(1) }
-    var round by remember { mutableStateOf("1") }
-    val guess = numInput.toIntOrNull() ?: 0
-    var hint = TheHint(guess, ans, round)
+    var numInput by remember { mutableStateOf("") }
+    var guess = numInput.toIntOrNull() ?: 0
+
+    var hint by remember { mutableStateOf(TheHint(guess, ans, 0).first) }
+    var round by remember { mutableStateOf(TheHint(guess, ans, 0).second) }
+
     val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier.padding(32.dp),
@@ -107,7 +110,11 @@ fun GameScreen() {
             imeAction = ImeAction.Done
         ),
         keyboardActions = KeyboardActions(
-            onDone = { hint = TheHint(guess, ans, round) }
+            onDone = {
+                focusManager.clearFocus()
+                hint = TheHint(guess, ans, round).first
+                round = TheHint(guess, ans, round).second
+            }
         ),
         value = numInput,
         onValueChange = { numInput = it })
@@ -120,7 +127,13 @@ fun GameScreen() {
                 .padding(vertical = 8.dp),
         )
 
-        Button(onClick = {  ans = (1..1000).random() }) {
+        Button(onClick = {
+            ans = (1..1000).random()
+            numInput = ""
+            guess = numInput.toIntOrNull() ?: 0
+            hint = TheHint(guess, ans, 0).first
+            round = TheHint(guess, ans, 0).second
+        }) {
             Text(stringResource(R.string.play_again))
         }
 
