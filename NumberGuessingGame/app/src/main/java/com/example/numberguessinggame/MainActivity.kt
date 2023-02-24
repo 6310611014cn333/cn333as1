@@ -3,7 +3,9 @@ package com.example.numberguessinggame
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -18,7 +20,12 @@ import com.example.numberguessinggame.ui.theme.NumberGuessingGameTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 
 class MainActivity : ComponentActivity() {
@@ -34,22 +41,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-private fun TheHint(guess: Int, ans: Int): String {
+private fun TheHint(guess: Int, ans: Int, rounds: Int): <String, Int, String> {
     var hint = ""
+    var round = rounds
     if (guess > ans && guess <= 1000) {
         hint = "It's lower"
+        round++
     } else if (guess < ans && guess >= 1) {
         hint = "It's higher"
+        round++
     } else if (guess == ans) {
-        hint = "Correct!"
+        hint = "Correct! You won with $round round(s)"
+        round = 0
     } else {
         hint = "Guess the number"
+        round = 1
     }
-    return hint
+    return hint, round
 }
 
 @Composable
 fun GuessingNumField(
+    @StringRes label: Int,
+    keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions,
     value: String,
     onValueChange: (String) -> Unit
 ) {
@@ -59,36 +74,50 @@ fun GuessingNumField(
         label = { Text(stringResource(R.string.your_guess)) },
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = Color.Transparent)
     )
 }
 
 @Composable
 fun GameScreen() {
     var ans by remember { mutableStateOf((1..1000).random()) }
-
-    var numInput by remember { mutableStateOf("") }
+    var numInput by remember { mutableStateOf(1) }
+    var round by remember { mutableStateOf("1") }
     val guess = numInput.toIntOrNull() ?: 0
-    val hint = TheHint(guess, ans)
+    var hint = TheHint(guess, ans, round)
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier.padding(32.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Try to guest the number I'm thinking of 1 - 1000 " + ans, //ใส่ ans ไว้ดูว่า program ถูกต้องไหม ของจริงไม่มี
-            modifier = Modifier.align(Alignment.CenterHorizontally),
+            text = stringResource(R.string.game_description) + " " + ans, //ใส่ ans ไว้ดูว่า program ถูกต้องไหม ของจริงไม่มี
+            fontSize = 24.sp,
+            fontWeight = FontWeight.W500,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 10.dp)
         )
 
-        Spacer(Modifier.height(16.dp))
-        GuessingNumField(value = numInput,
-            onValueChange = { numInput = it })
+        Spacer(Modifier.height(100.dp))
+        GuessingNumField(label = R.string.your_guess,
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Number,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(
+            onDone = { hint = TheHint(guess, ans, round) }
+        ),
+        value = numInput,
+        onValueChange = { numInput = it })
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(50.dp))
         Text(
             text = stringResource(R.string.hint, hint),
-            modifier = Modifier.align(Alignment.CenterHorizontally),
-            fontSize = 20.sp,
+            style = TextStyle(fontSize = 22.sp, color = Color.Gray),
+            modifier = Modifier
+                .padding(vertical = 8.dp),
         )
 
         Button(onClick = {  ans = (1..1000).random() }) {
