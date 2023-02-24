@@ -3,4 +3,5 @@
     <string name="your_guess">Your Guess</string>
     <string name="hint">Hint: %s</string>
     <string name="play_again">Play Again</string>
+    <string name="game_description">Try to guest the number I\'m thinking of 1 - 1000</string>
 </resources>
