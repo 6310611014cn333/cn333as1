@@ -1,7 +1,7 @@
 # cn333as1
 **วิธีการติตตั้ง**
 1. git clone https://github.com/6310611014cn333/cn333as1.git
-2. ใน โฟลเดอร์ที่ clone มา เปิด project ที่มีชื่อว่า Number Guessing Game ใน Android Studio
+2. ในโฟลเดอร์ที่ clone มา เปิด project ที่มีชื่อว่า Number Guessing Game ใน Android Studio
 3. ทำการ Create device เลือก phone -> pixel 6 -> Tiramisu
 3. Run app(Shift+F10)
 
